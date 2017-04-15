@@ -3,7 +3,12 @@ package xorshift
 import (
 	"math/rand"
 	"sync/atomic"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 var globalRand = rand.New(newPooledSource(4096, NewSource))
 
