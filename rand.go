@@ -97,25 +97,26 @@ type pooledSource struct {
 }
 
 func newPooledSource(size int, factory func(int64) rand.Source64) (pSrc *pooledSource) {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	pSrc = &pooledSource{pool: make([]rand.Source64, size)}
 	for i := range pSrc.pool {
-		pSrc.pool[i] = factory(rand.Int63())
+		pSrc.pool[i] = factory(rng.Int63())
 	}
 	return pSrc
 }
 
 func (pSrc *pooledSource) Seed(seed int64) {
-	rand.Seed(seed)
+	rng := rand.New(rand.NewSource(seed))
 	for i := range pSrc.pool {
-		pSrc.pool[i].Seed(rand.Int63())
+		pSrc.pool[i].Seed(rng.Int63())
 	}
 }
 
-func (pSrc *pooledSource) Int63() (n int64) {
+func (pSrc *pooledSource) Int63() int64 {
 	return pSrc.next().Int63()
 }
 
-func (pSrc *pooledSource) Uint64() (n uint64) {
+func (pSrc *pooledSource) Uint64() uint64 {
 	return pSrc.next().Uint64()
 }
 
