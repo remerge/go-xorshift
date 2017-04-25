@@ -61,7 +61,7 @@ func TestRandomUUID(t *testing.T) {
 type badRand struct{}
 
 func (r badRand) Read(buf []byte) (int, error) {
-	for i, _ := range buf {
+	for i := range buf {
 		buf[i] = byte(i)
 	}
 	return len(buf), nil
