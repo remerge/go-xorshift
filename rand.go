@@ -61,8 +61,8 @@ func Float64() float64 { return globalRand.Float64() }
 // from the default Source.
 func Float32() float32 { return globalRand.Float32() }
 
-// Perm returns, as a slice of n ints, a pseudo-random permutation of the integers [0,n)
-// from the default Source.
+// Perm returns, as a slice of n ints, a pseudo-random permutation of the
+// integers [0,n) from the default Source.
 func Perm(n int) []int { return globalRand.Perm(n) }
 
 // Read generates len(p) random bytes from the default Source and
@@ -96,7 +96,10 @@ type pooledSource struct {
 	pos  uint64
 }
 
-func newPooledSource(size int, factory func(int64) rand.Source64) (pSrc *pooledSource) {
+func newPooledSource(
+	size int,
+	factory func(int64) rand.Source64,
+) (pSrc *pooledSource) {
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	pSrc = &pooledSource{pool: make([]rand.Source64, size)}
 	for i := range pSrc.pool {

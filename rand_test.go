@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"os"
-	"runtime"
 	"testing"
 	"testing/iotest"
 )
@@ -36,7 +34,8 @@ func max(a, b float64) float64 {
 
 func nearEqual(a, b, closeEnough, maxError float64) bool {
 	absDiff := math.Abs(a - b)
-	if absDiff < closeEnough { // Necessary when one value is zero and one value is close to zero.
+	// Necessary when one value is zero and one value is close to zero.
+	if absDiff < closeEnough {
 		return true
 	}
 	return absDiff/max(math.Abs(a), math.Abs(b)) < maxError
@@ -46,14 +45,19 @@ var testSeeds = []int64{1, 1754801282, 1698661970, 1550503961}
 
 // checkSimilarDistribution returns success if the mean and stddev of the
 // two statsResults are similar.
-func (this *statsResults) checkSimilarDistribution(expected *statsResults) error {
-	if !nearEqual(this.mean, expected.mean, expected.closeEnough, expected.maxError) {
-		s := fmt.Sprintf("mean %v != %v (allowed error %v, %v)", this.mean, expected.mean, expected.closeEnough, expected.maxError)
+func (sr *statsResults) checkSimilarDistribution(
+	expected *statsResults,
+) error {
+	if !nearEqual(sr.mean, expected.mean,
+		expected.closeEnough, expected.maxError) {
+		s := fmt.Sprintf("mean %v != %v (allowed error %v, %v)", sr.mean,
+			expected.mean, expected.closeEnough, expected.maxError)
 		fmt.Println(s)
 		return errors.New(s)
 	}
-	if !nearEqual(this.stddev, expected.stddev, 0, expected.maxError) {
-		s := fmt.Sprintf("stddev %v != %v (allowed error %v, %v)", this.stddev, expected.stddev, expected.closeEnough, expected.maxError)
+	if !nearEqual(sr.stddev, expected.stddev, 0, expected.maxError) {
+		s := fmt.Sprintf("stddev %v != %v (allowed error %v, %v)", sr.stddev,
+			expected.stddev, expected.closeEnough, expected.maxError)
 		fmt.Println(s)
 		return errors.New(s)
 	}
@@ -72,7 +76,11 @@ func getStatsResults(samples []float64) *statsResults {
 	return res
 }
 
-func checkSampleDistribution(t *testing.T, samples []float64, expected *statsResults) {
+func checkSampleDistribution(
+	t *testing.T,
+	samples []float64,
+	expected *statsResults,
+) {
 	actual := getStatsResults(samples)
 	err := actual.checkSimilarDistribution(expected)
 	if err != nil {
@@ -80,7 +88,12 @@ func checkSampleDistribution(t *testing.T, samples []float64, expected *statsRes
 	}
 }
 
-func checkSampleSliceDistributions(t *testing.T, samples []float64, nslices int, expected *statsResults) {
+func checkSampleSliceDistributions(
+	t *testing.T,
+	samples []float64,
+	nslices int,
+	expected *statsResults,
+) {
 	chunk := len(samples) / nslices
 	for i := 0; i < nslices; i++ {
 		low := i * chunk
@@ -98,7 +111,11 @@ func checkSampleSliceDistributions(t *testing.T, samples []float64, nslices int,
 // Normal distribution tests
 //
 
-func generateNormalSamples(nsamples int, mean, stddev float64, seed int64) []float64 {
+func generateNormalSamples(
+	nsamples int,
+	mean, stddev float64,
+	seed int64,
+) []float64 {
 	r := New(NewSource(seed))
 	samples := make([]float64, nsamples)
 	for i := range samples {
@@ -107,12 +124,16 @@ func generateNormalSamples(nsamples int, mean, stddev float64, seed int64) []flo
 	return samples
 }
 
-func testNormalDistribution(t *testing.T, nsamples int, mean, stddev float64, seed int64) {
-	//fmt.Printf("testing nsamples=%v mean=%v stddev=%v seed=%v\n", nsamples, mean, stddev, seed);
-
+func testNormalDistribution(
+	t *testing.T,
+	nsamples int,
+	mean, stddev float64,
+	seed int64,
+) {
 	samples := generateNormalSamples(nsamples, mean, stddev, seed)
 	errorScale := max(1.0, stddev) // Error scales with stddev
-	expected := &statsResults{mean, stddev, 0.10 * errorScale, 0.08 * errorScale}
+	expected := &statsResults{mean, stddev,
+		0.10 * errorScale, 0.08 * errorScale}
 
 	// Make sure that the entire set matches the expected distribution.
 	checkSampleDistribution(t, samples, expected)
@@ -155,7 +176,11 @@ func TestNonStandardNormalValues(t *testing.T) {
 // Exponential distribution tests
 //
 
-func generateExponentialSamples(nsamples int, rate float64, seed int64) []float64 {
+func generateExponentialSamples(
+	nsamples int,
+	rate float64,
+	seed int64,
+) []float64 {
 	r := New(NewSource(seed))
 	samples := make([]float64, nsamples)
 	for i := range samples {
@@ -164,15 +189,19 @@ func generateExponentialSamples(nsamples int, rate float64, seed int64) []float6
 	return samples
 }
 
-func testExponentialDistribution(t *testing.T, nsamples int, rate float64, seed int64) {
-	//fmt.Printf("testing nsamples=%v rate=%v seed=%v\n", nsamples, rate, seed);
-
+func testExponentialDistribution(
+	t *testing.T,
+	nsamples int,
+	rate float64,
+	seed int64,
+) {
 	mean := 1 / rate
 	stddev := mean
 
 	samples := generateExponentialSamples(nsamples, rate, seed)
 	errorScale := max(1.0, 1/rate) // Error scales with the inverse of the rate
-	expected := &statsResults{mean, stddev, 0.10 * errorScale, 0.20 * errorScale}
+	expected := &statsResults{mean, stddev,
+		0.10 * errorScale, 0.20 * errorScale}
 
 	// Make sure that the entire set matches the expected distribution.
 	checkSampleDistribution(t, samples, expected)
@@ -201,55 +230,6 @@ func TestNonStandardExponentialValues(t *testing.T) {
 			}
 		}
 	}
-}
-
-// compareUint32Slices returns the first index where the two slices
-// disagree, or <0 if the lengths are the same and all elements
-// are identical.
-func compareUint32Slices(s1, s2 []uint32) int {
-	if len(s1) != len(s2) {
-		if len(s1) > len(s2) {
-			return len(s2) + 1
-		}
-		return len(s1) + 1
-	}
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return i
-		}
-	}
-	return -1
-}
-
-// compareFloat32Slices returns the first index where the two slices
-// disagree, or <0 if the lengths are the same and all elements
-// are identical.
-func compareFloat32Slices(s1, s2 []float32) int {
-	if len(s1) != len(s2) {
-		if len(s1) > len(s2) {
-			return len(s2) + 1
-		}
-		return len(s1) + 1
-	}
-	for i := range s1 {
-		if !nearEqual(float64(s1[i]), float64(s2[i]), 0, 1e-7) {
-			return i
-		}
-	}
-	return -1
-}
-
-func hasSlowFloatingPoint() bool {
-	switch runtime.GOARCH {
-	case "arm":
-		return os.Getenv("GOARM") == "5"
-	case "mips", "mipsle", "mips64", "mips64le":
-		// Be conservative and assume that all mips boards
-		// have emulated floating point.
-		// TODO: detect what it actually has.
-		return true
-	}
-	return false
 }
 
 func TestFloat32(t *testing.T) {
@@ -286,7 +266,8 @@ func testReadUniformity(t *testing.T, n int, seed int64) {
 		errorScale = stddev / math.Sqrt(float64(n))
 	)
 
-	expected := &statsResults{mean, stddev, 0.10 * errorScale, 0.08 * errorScale}
+	expected := &statsResults{mean, stddev,
+		0.10 * errorScale, 0.08 * errorScale}
 
 	// Cast bytes as floats to use the common distribution-validity checks.
 	samples := make([]float64, n)

@@ -6,12 +6,14 @@ type xorshiftSource struct {
 	state [2]uint64
 }
 
+// NewSource creates a rand.Source64 instance based on xorshift+
 func NewSource(seed int64) rand.Source64 {
 	var rng xorshiftSource
 	rng.Seed(seed)
 	return &rng
 }
 
+// New creates a rand.Rand instance with the given source
 func New(source rand.Source) *rand.Rand {
 	return rand.New(source)
 }

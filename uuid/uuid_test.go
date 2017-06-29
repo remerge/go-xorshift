@@ -9,13 +9,6 @@ import (
 	"testing"
 )
 
-type test struct {
-	in      string
-	version Version
-	variant Variant
-	isuuid  bool
-}
-
 var constants = []struct {
 	c    interface{}
 	name string
@@ -57,18 +50,6 @@ func TestRandomUUID(t *testing.T) {
 		}
 	}
 }
-
-type badRand struct{}
-
-func (r badRand) Read(buf []byte) (int, error) {
-	for i := range buf {
-		buf[i] = byte(i)
-	}
-	return len(buf), nil
-}
-
-var asString = "f47ac10b-58cc-0372-8567-0e02b2c3d479"
-var asBytes = []byte(asString)
 
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {

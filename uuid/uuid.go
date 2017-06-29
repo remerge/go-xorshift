@@ -29,7 +29,7 @@ const (
 	Invalid   = Variant(iota) // Invalid UUID
 	RFC4122                   // The variant specified in RFC4122
 	Reserved                  // Reserved, NCS backward compatibility.
-	Microsoft                 // Reserved, Microsoft Corporation backward compatibility.
+	Microsoft                 // Reserved, Microsoft Corporation.
 	Future                    // Reserved for future definition.
 )
 
