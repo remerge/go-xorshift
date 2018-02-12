@@ -96,6 +96,7 @@ type pooledSource struct {
 	pos  uint64
 }
 
+// nolint:unparam
 func newPooledSource(
 	size int,
 	factory func(int64) rand.Source64,
