@@ -27,8 +27,8 @@ func TestConstants(t *testing.T) {
 		if !ok {
 			t.Errorf("%x: %v: not a stringer", x, v)
 		} else if s := v.String(); s != tt.name {
-			v, _ := tt.c.(int)
-			t.Errorf("%x: Constant %T:%d gives %q, expected %q", x, tt.c, v, s, tt.name)
+			v2, _ := tt.c.(int)
+			t.Errorf("%x: Constant %T:%d gives %q, expected %q", x, tt.c, v2, s, tt.name)
 		}
 	}
 }

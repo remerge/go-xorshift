@@ -37,10 +37,10 @@ func TestNew(t *testing.T) {
 	for i := range uris {
 		uris[i] = New()
 	}
-	for i, u := range uris {
+	for i, u1 := range uris {
 		for j, u2 := range uris {
-			if i != j && u == u2 {
-				t.Fatalf("not unique: %d:%q and %d:%q", i, u, j, u2)
+			if i != j && u1 == u2 {
+				t.Fatalf("not unique: %d:%q and %d:%q", i, u1, j, u2)
 			}
 		}
 	}
