@@ -1,12 +1,7 @@
-# go-xorshift
+# Lock Free XOR Shift for Go
 
-Package `xorshift` provides a pooled, lock-free xorshift+ PRNG source for `math/rand`.
-
-## Install
-
-```bash
-go get github.com/remerge/go-xorshift
-```
+Package `xorshift` provides a pooled, lock-free xorshift+ PRNG source for
+`math/rand`.
 
 ## Usage
 
@@ -14,11 +9,11 @@ go get github.com/remerge/go-xorshift
 package main
 
 import (
-	"fmt"
-	rand "github.com/remerge/go-xorshift"
+  "fmt"
+  rand "github.com/remerge/go-xorshift"
 )
 
 func main() {
-	fmt.Println(rand.Int63())
+  fmt.Println(rand.Int63())
 }
 ```

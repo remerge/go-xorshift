@@ -11,7 +11,7 @@ import (
 // New is creates a new random UUID or panics.  New is equivalent to
 // the expression
 //
-//    uuid.Must(uuid.NewRandom())
+//	uuid.Must(uuid.NewRandom())
 func New() UUID {
 	return Must(NewRandom())
 }
